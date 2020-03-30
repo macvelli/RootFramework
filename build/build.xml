@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="root" default="buildJar" basedir="..">
+
+	<!-- Load environment and file properties -->
+	<property environment="env"/>
+	<property file="build/build.properties"/>
+
+	<!-- Define the classpath for this project -->
+	<path id="classpath">
+		<pathelement location="."/>
+		<pathelement location="${lib}/servlet-api-3.0.jar"/>
+		<pathelement location="${lib}/mailapi-1.4.4.jar"/>
+		<pathelement location="${lib}/log4j-1.2.16.jar"/>
+	</path>
+
+	<!-- Delete all directories and files created during the build -->
+	<target name="clean">
+		<delete dir="${classdir}"/>
+		<delete dir="${distdir}"/>
+	</target>
+
+	<!-- Recreate the build directory structure -->
+	<target name="prepare" depends="clean">
+		<mkdir dir="${classdir}"/>
+		<mkdir dir="${distdir}"/>
+	</target>
+
+	<!-- Compile all project-level source code -->
+	<target name="build" depends="prepare">
+		<javac includeantruntime="false" srcdir="${src}" destdir="${classdir}" debug="on" includes="root/**/*.java">
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+	<!-- Build JAR file and generate source zip file -->
+	<target name="buildJar" depends="build">
+		<jar jarfile="${distdir}/${jarFile}" basedir="${classdir}" excludes="root/log/*Formatter.class root/log/*Handler.class"/>
+		<jar jarfile="${distdir}/${extFile}" basedir="${classdir}" includes="root/log/*Formatter.class root/log/*Handler.class" excludes="root/log/Log.class"/>
+		<zip destfile="${distdir}/${srcFile}" basedir="${src}" includes="**/*.java"/>
+	</target>
+
+	<!-- Migrate JAR to all dependent projects -->
+	<target name="migrate" depends="buildJar">
+		<copy file="${distdir}/${jarFile}" todir="${basedir}/../SQLBroker/lib"/>
+		<copy file="${distdir}/${jarFile}" todir="${basedir}/../SecurityBroker/lib"/>
+		<copy file="${distdir}/${jarFile}" todir="${basedir}/../Security/WebContent/WEB-INF/lib"/>
+	</target>
+
+</project>

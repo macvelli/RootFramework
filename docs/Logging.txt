@@ -1,0 +1,32 @@
+Need:
+	1. A Log4JHandler to map JUL LogRecords over to whatever Log4J uses
+		+ org.apache.log4j.spi.LoggingEvent appears to be the LogRecord equivalent -- question is how does it get logged?
+	2. A FileHandler that maps a Logger name with a unique log file
+
+
+Lessons Learned:
+	= Handlers
+		o Must always have a Level and Formatter set when creating a Handler
+		o Default log level is set to ALL if not set in handler constructor
+		o Why does the handler check to see if the LogRecord level is OFF?  Doesn't the Logger already do this?
+	= Loggers
+		o There are always two loggers created by default, '' and 'global' ('' is parent of 'global')
+		o New Logger objects are assigned '' as their parent by default
+
+
+
+Successes:
+	+ Loaded a properties file from the classpath
+	+ Registered the DebugHandler as the default JUL handler (handlers=root.log.DebugHandler)
+		o Configured SimpleFormatter as the default formatter
+		o Configured XMLFormatter from the properties file (root.log.DebugHandler.formatter = java.util.logging.XMLFormatter)
+
+
+
+Failures:
+	- Got bit by multiple properties files with the same name on the classpath
+	- Cannot debug JDK classes in Eclipse
+	- Could not debug classes in logging_1_3.jar
+		o Had to extract .java files and create an Eclipse project
+	- Cannot leverage LogManager helper methods getLevelProperty, getFilterProperty, or getFormatterProperty because they are package private
+	

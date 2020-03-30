@@ -1,0 +1,177 @@
+Test ListOneToMany
+
+-------------------------------------------------------------------------------
+
+Changes made 12/3/2016:
+
+Removed the following classes from root.data.validation:
+- Field.java
+- FieldError.java
+- Request.java
+- Validation.java
+- Validator.java
+
+Changes made 12/7/2016:
+
+Deleted some classes from the root.lang.reflect package
+
+-------------------------------------------------------------------------------
+
+Before performing first check-in to GitHub:
+- Remove all public static void main() methods
+- Remove all Last Modified and @date comments
+- Review each class for
+	+ Look at all the equals() methods and make sure
+		o The very first thing each implementation does is say "if (this != obj)"
+		o The very next thing each implementation does is say "if (Safe.notEqual(obj, Class.class))"
+		o Look at SetMultiKey.equals() on how to do this the right way
+	+ All root.data.structures that have the public Object[] toArray() method needs to implement public T[] toArray()
+	+ What other data structures besides RootList could use an echo() method? RootSet maybe?
+    + Documentation
+    + Comment formatting
+    + Does the class still apply or is it obsolete?
+    + Clean up any deprecated API usage
+    + Change all of the @version JavaDoc tags to say 0.5 instead of 1.0
+    + Rename all Data Structure interface declarations to something like RootSet<T> because tools like Blaze Advisor choke when you attempt to import SetHashed<T> because it already built-in java.util.Set<T> as the Set interface and an exception is thrown
+    + Finish CurrencyFormatter, CurrencyParser, MoneyLong, MoneyInt
+    + Would it make sense for Sets, Lists, Maps, etc implement both Root and JDK interfaces?
+
+All interfaces
+    + Remove public designation from method declarations
+
+All data structures
+    + Instead of having separate methods that take Iterable for arrays, come up with a class that encapsulates an array as a Collection
+    + Resize logic
+    		if (newSize > this.values.length) {
+				this.resize(newSize + (newSize >> 1));
+			}
+	+ Implement Cloneable
+	+ Comb through every single method and make sure they are all optimized as best as possible
+	+ Make every possible class, including inner classes, final
+	+ Comb through Guava collection classes for good ideas to "borrow"
+	+ Make all array-based data structures start out with a minimum size of 8
+	+ Have all array-based data structures use Clean.newArray()
+	+ Most hashCode() implementations are FUBAR because I do h << 1 after h ^= o.hashCode().  The hashCode in this case will always be an even number so these ops need to be reversed
+	+ One problem with primitive type data structures is that you cannot iterate or itemize over them since Java Generics don't take primitives as type parameters.
+
+Extractable data structures
+	+ Need constructors
+	+ Need to override toString()
+	+ Need to figure out join()
+
+Immutable data structures
+	+ Make sure MapHashed, SetHashed, etc can natively produce their immutable counterparts
+	+ Remember to override equals(), hashCode(), and toString()
+	+ Need constructors on SetImmutable, ListImmutable, etc that take Iterable and varargs
+		- Don't think we can do one for MapImmutable, unless it's for java.util.HashMap
+
+root.cache package
+    + Need an addCapacity() method for the Level 2 cache implementation
+
+All Classes
+	+ Make sure every public method is unit tested!
+	+ Check https://github.com/RuedigerMoeller/fast-serialization before going on an Externalizable kick
+	+ http://java-is-the-new-c.blogspot.com/2013/10/still-using-externalizable-to- get.html
+
+root.xml
+	+ Change Element back to not using indent as whitespace is a killer size-wise
+	+ That means I need a pretty-print XML class that takes a compacted XML string (or maybe any XML string for that matter) and adds the nice indentations
+		- Maybe I can still use the XMLParser/Element indent combo to do this, but the default print option should be no indentation
+
+java.sql.Date
+	+ Check out how crappy its toString() method is...can definitely do better!
+	+ For budget purposes, as well as data deduplication, do we need a compact "Date" class that is simply just the month and year? Then we could store
+	  this value as part of a primary key (along with user ID) which is then referenced across all entries in the database...but if it is a simple
+	  integer-like field, it probably doesn't matter and it can just be a part of the table record
+
+-------------------------------------------------------------------------------
+
+	public static void main(String[] args) throws Exception {
+		long start, end;
+		Integer i = Integer.valueOf(141241);
+		char[] buf = new char[6];
+
+		Method getChars = Integer.class.getDeclaredMethod("getChars", int.class, int.class, char[].class);
+		getChars.setAccessible(true);
+
+		// Warm up the JVM
+		for (int j=0; j < 1000000; j++) {
+	        getChars.invoke(null, i, 6, buf);
+		}
+
+		System.out.print("Method getChars():     ");
+		start = System.nanoTime();
+		for (int j=0; j < 10000000; j++) {
+	        getChars.invoke(null, i, 6, buf);
+		}
+		end = System.nanoTime();
+
+		System.out.println(end-start);
+
+		FastMethod fastGetChars = new FastMethod(Integer.class, "getChars", int.class, int.class, char[].class);
+
+		System.out.print("FastMethod getChars(): ");
+		start = System.nanoTime();
+		for (int j=0; j < 10000000; j++) {
+			fastGetChars.invoke(null, i, 6, buf);
+		}
+		end = System.nanoTime();
+
+		System.out.println(end-start);
+
+		System.out.print("Local getChars():      ");
+		start = System.nanoTime();
+		for (int j=0; j < 10000000; j++) {
+			getChars(141241, 6, buf);
+		}
+		end = System.nanoTime();
+
+		System.out.println(end-start);
+
+		System.out.println(new String(buf));
+	}
+
+-------------------------------------------------------------------------------
+
+	public static void main(final String[] args) throws Exception {
+		final char[] charArray = { 'g', 'm', 'a', 'i', 'l', '.', 'c', 'o', 'm' };
+		final Constructor<String> javaFastNewString = String.class.getDeclaredConstructor(char[].class, boolean.class);
+		javaFastNewString.setAccessible(true);
+		final ObjectConstructor<String> rootFastNewString = new ObjectConstructor<>(String.class, char[].class, boolean.class);
+
+		String domain = null;
+		final int numTries = 20;
+		final long[] test1 = new long[numTries];
+		final long[] test2 = new long[numTries];
+		final long[] test3 = new long[numTries];
+		long start;
+
+		int j;
+		for (int i = 0; i < numTries; i++) {
+			start = System.nanoTime();
+			for (j = 0; j < 10000000; j++) {
+				domain = new String(charArray);
+			}
+			test1[i] = System.nanoTime() - start;
+			System.out.println("Test 1: " + domain);
+
+			start = System.nanoTime();
+			for (j = 0; j < 10000000; j++) {
+				domain = javaFastNewString.newInstance(charArray, true);
+			}
+			test2[i] = System.nanoTime() - start;
+			System.out.println("Test 2: " + domain);
+
+			start = System.nanoTime();
+			for (j = 0; j < 10000000; j++) {
+				domain = rootFastNewString.newInstance(charArray, true);
+			}
+			test3[i] = System.nanoTime() - start;
+			System.out.println("Test 3: " + domain);
+		}
+
+		System.out.println("Final: " + domain);
+		System.out.println(Arrays.toString(test1));
+		System.out.println(Arrays.toString(test2));
+		System.out.println(Arrays.toString(test3));
+	}

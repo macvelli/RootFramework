@@ -1,0 +1,3 @@
+root.data.storage.rdbms
+
+[namespace].[group].[category].[implementation]

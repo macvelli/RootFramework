@@ -1,0 +1,6 @@
+Method Names
+
+- Verbs
+- Q: What is a method doing when it returns a value? A: Retrieval
+    + No parameters -> 
+    + One or more parameters -> 
