@@ -10,12 +10,25 @@
 	<path id="classpath">
 		<pathelement location="."/>
 		<pathelement location="${lib}/servlet-api-3.0.jar"/>
-		<pathelement location="${lib}/mailapi-1.4.4.jar"/>
+		<pathelement location="${lib}/javax.mail-1.5.6.jar"/>
 		<pathelement location="${lib}/log4j-1.2.16.jar"/>
 	</path>
 
+	<fail message="Unsupported Java version: ${ant.java.version}. Make sure the Java version is 1.7 ONLY.">
+		<condition>
+			<not>
+				<equals arg1="${ant.java.version}" arg2="1.7"/>
+			</not>
+		</condition>
+	</fail>
+
+	<target name="print-version">
+		<echo>Java/JVM version: ${ant.java.version}</echo>
+		<echo>Java/JVM detail version: ${java.version}</echo>
+	</target>
+
 	<!-- Delete all directories and files created during the build -->
-	<target name="clean">
+	<target name="clean" depends="print-version">
 		<delete dir="${classdir}"/>
 		<delete dir="${distdir}"/>
 	</target>

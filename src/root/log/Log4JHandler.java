@@ -48,7 +48,7 @@ public final class Log4JHandler extends Handler {
 			.put(Level.OFF, org.apache.log4j.Level.OFF)
 			.put(Level.SEVERE, org.apache.log4j.Level.ERROR)
 			.put(Level.WARNING, org.apache.log4j.Level.WARN)
-			.build();
+			.build().toImmutable();
 
 	// <><><><><><><><><><><><><><> Public Methods <><><><><><><><><><><><><><>
 

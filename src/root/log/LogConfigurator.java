@@ -40,7 +40,7 @@ public final class LogConfigurator {
 			.put(Level.OFF.getName(), Level.OFF)
 			.put(Level.SEVERE.getName(), Level.SEVERE)
 			.put(Level.WARNING.getName(), Level.WARNING)
-			.build();
+			.build().toImmutable();
 
 	// <><><><><><><><><><><><><><><> Attributes <><><><><><><><><><><><><><><>
 

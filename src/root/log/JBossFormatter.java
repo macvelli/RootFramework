@@ -49,7 +49,7 @@ public final class JBossFormatter extends Formatter {
 			.put(Level.WARNING, new char[] { ' ', 'W', 'A', 'R', 'N', ' ', ' ' })
 			.put(Level.SEVERE, new char[] { ' ', 'F', 'A', 'I', 'L', ' ', ' ' })
 			.put(Level.FINEST, new char[] { ' ', 'T', 'R', 'A', 'C', 'E', ' ' })
-			.build();
+			.build().toImmutable();
 
 	// <><><><><><><><><><><><><><> Public Methods <><><><><><><><><><><><><><>
 

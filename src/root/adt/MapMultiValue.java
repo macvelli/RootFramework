@@ -65,20 +65,6 @@ public class MapMultiValue<K, V> implements RootMap<K, ListArray<V>> {
 		this.map = new MapHashed<>(capacity);
 	}
 
-	/**
-	 * A constructor that adds all of the entries within the {@link Map} to this map upon creation.
-	 *
-	 * @param map
-	 *            the {@link Map} to add to the map upon creation
-	 */
-	public MapMultiValue(final Map<? extends K, ? extends V> map) {
-		this.map = new MapHashed<>(map.size());
-
-		for (final Entry<? extends K, ? extends V> entry : map.entrySet()) {
-			this.put(entry.getKey(), entry.getValue());
-		}
-	}
-
 	// <><><><><><><><><><><><><><> Public Methods <><><><><><><><><><><><><><>
 
 	/**
@@ -395,26 +381,6 @@ public class MapMultiValue<K, V> implements RootMap<K, ListArray<V>> {
 		this.numValues += valueList.size;
 
 		return list;
-	}
-
-	/**
-	 * Puts the {@code (key, value)} mapping into the map. The {@code value} is added to the end of the list of values mapped under the {@code key}.
-	 *
-	 * @param key
-	 *            the key of the entry
-	 * @param value
-	 *            the value of the entry
-	 */
-	public final void put(final K key, final V value) {
-		ListArray<V> list = this.map.get(key);
-
-		if (list == null) {
-			list = new ListArray<>();
-			this.map.put(key, list);
-		}
-
-		list.add(value);
-		this.numValues++;
 	}
 
 	/**
