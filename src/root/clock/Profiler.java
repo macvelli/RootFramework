@@ -75,6 +75,10 @@ public final class Profiler implements Extractable {
 		this.results.add(numResults);
 	}
 
+	public final long elapsed() {
+		return end - begin;
+	}
+
 	@Override
 	public final void extract(final StringExtractor extractor) {
 		extractor.append("\nProfiler: ").append(this.label).append(' ').append(this.failed ? "failed" : "succeeded");
@@ -119,6 +123,22 @@ public final class Profiler implements Extractable {
 
 	public final boolean isRunning() {
 		return this.running;
+	}
+
+	public final void start() {
+		if (!this.running) {
+			this.running = true;
+			this.start = System.currentTimeMillis();
+		}
+	}
+
+	public final void stop() {
+		if (this.running) {
+			this.stop = System.currentTimeMillis();
+			this.running = false;
+
+			this.accrue();
+		}
 	}
 
 	@Override
