@@ -384,6 +384,25 @@ public class MapMultiValue<K, V> implements RootMap<K, ListArray<V>> {
 	}
 
 	/**
+	 * Puts the {@code (key, value)} mapping into the map. The {@code value} is
+	 * added to the end of the list of values mapped under the {@code key}.
+	 *
+	 * @param key	the key of the entry
+	 * @param value	the value of the entry
+	 */
+	public final void putValue(final K key, final V value) {
+		ListArray<V> list = this.map.get(key);
+
+		if (list == null) {
+			list = new ListArray<>();
+			this.map.put(key, list);
+		}
+
+		list.add(value);
+		this.numValues++;
+	}
+
+	/**
 	 * Puts all of the values in the {@link Collection} into the map under the {@code key}.
 	 *
 	 * @param key
