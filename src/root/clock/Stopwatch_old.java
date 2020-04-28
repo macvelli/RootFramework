@@ -63,8 +63,8 @@ public final class Stopwatch_old implements Extractable {
 			throw new InvalidParameterException("addNumProcessed", String.class, "label", "No such profiler by label: {P}", label);
 		}
 
-		profiler.getResults().add(processed);
-		this.total.getResults().add(processed);
+		profiler.getResultStats().add(processed);
+		this.total.getResultStats().add(processed);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public final class Stopwatch_old implements Extractable {
 	}
 
 	public final int getNumProcessed() {
-		return (int) this.total.getResults().sum();
+		return (int) this.total.getResultStats().sum();
 	}
 
 	public final Profiler getTotal() {

@@ -65,18 +65,24 @@ public final class Profiler implements Extractable {
 	}
 
 	public final void accrue(final long start, final long stop) {
-		this.time.add(stop - start);
-		this.updateMetrics(start, stop);
+		this.start = start;
+		this.stop = stop;
+
+		this.time.add(this.stop - this.start);
+		this.updateMetrics(this.start, this.stop);
 	}
 
 	public final void accrue(final long start, final long stop, final int numResults) {
-		this.time.add(stop - start);
-		this.updateMetrics(start, stop);
+		this.start = start;
+		this.stop = stop;
+
+		this.time.add(this.stop - this.start);
+		this.updateMetrics(this.start, this.stop);
 		this.results.add(numResults);
 	}
 
 	public final long elapsed() {
-		return end - begin;
+		return this.time.sum();
 	}
 
 	@Override
@@ -107,7 +113,7 @@ public final class Profiler implements Extractable {
 		return this.end;
 	}
 
-	public final Statistics getResults() {
+	public final Statistics getResultStats() {
 		return this.results;
 	}
 
@@ -151,14 +157,6 @@ public final class Profiler implements Extractable {
 	// <><><><><><><><><><><><><>< Private Methods ><><><><><><><><><><><><><>
 
 	private void updateMetrics(final long start, final long stop) {
-		if (this.start == 0) {
-			this.start = start;
-		}
-
-		if (this.stop < stop) {
-			this.stop = stop;
-		}
-
 		if (this.begin == 0) {
 			this.begin = start;
 		}
